@@ -1,11 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>{{ title }} - 找老师Blog</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
 	<h1>你好， {{ user.username }}</h1>
-</body>
-</html>
+	{% for post in posts %}
+		<div>
+			<p>
+				{{ post.author.username }} says: 
+				<b>
+					{{ post.body }}
+				</b>
+			</p>
+		</div>
+	{% endfor %}
+{% endblock %}

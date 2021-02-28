@@ -7,5 +7,16 @@ from app import app
 
 #1个视图函数
 def index():
-	user = {'username': 'Developer'}
-	return render_template('index.html', title='home', user=user)
+	user = {'username': 'Monkey'}
+
+	posts = [
+		{
+			'author': {'username': 'john'},
+			'body': 'Beautiful day in Portland!'
+		},
+		{
+			'author': {'username': 'susan'},
+			'body': 'Beautiful day in USA!'
+		}
+		]
+	return render_template('index.html', user=user, posts=posts)

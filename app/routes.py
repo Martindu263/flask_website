@@ -90,7 +90,7 @@ def upload():
 		f = request.files['file']
 
 		if not (f and allowed_file(f.filename)):
-			return jsonify({"error": 1001, "msg": "请检查上传的图片类型，仅限于png、PNG、jpg、JPG、bmp"})
+			return jsonify({"error": 1001, "msg": "1请检查上传的图片类型，仅限于png、PNG、jpg、JPG、bmp"})
 
 		user_input = request.form.get("name")
 

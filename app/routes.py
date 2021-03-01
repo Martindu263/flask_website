@@ -85,26 +85,22 @@ def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/upload', methods=['POST', 'GET'])  # 添加路由
+@login_required
 def upload():
 	if request.method == 'POST':
 		f = request.files['file']
-
 		if not (f and allowed_file(f.filename)):
 			return jsonify({"error": 1001, "msg": "1请检查上传的图片类型，仅限于png、PNG、jpg、JPG、bmp"})
-
-		user_input = request.form.get("name")
-
 		basepath = os.path.dirname(__file__)  # 当前文件所在路径
-
-		upload_path = os.path.join(basepath, 'static/images/uploads', secure_filename(f.filename))  # 注意：没有的文件夹一定要先创建，不然会提示没有该路径
-		# upload_path = os.path.join(basepath, 'static/images','test.jpg')  #注意：没有的文件夹一定要先创建，不然会提示没有该路径
+		upload_path = os.path.join(basepath, 'static/images/uploads', secure_filename(f.filename))
 		f.save(upload_path)
 
 		# 使用Opencv转换一下图片格式和名称
 		img = cv2.imread(upload_path)
-		cv2.imwrite(os.path.join(basepath, 'static/images', 'test.jpg'), img)
+		pic_name = os.path.join(basepath, 'static/images/uploads', '%s.jpg' % (time.time()))
+		cv2.imwrite(pic_name, img)
 
-		return render_template('upload_ok.html',userinput=user_input,val1=time.time())
+		return render_template('upload_ok.html',val1=time.time())
 
 	return render_template('upload.html')
 

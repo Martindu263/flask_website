@@ -19,6 +19,9 @@ class User(UserMixin, db.Model):
 	time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
 	posts = db.relationship('Post', backref='author', lazy='dynamic')
 
+	def avatars(self):
+		return 'static' + '/' + 'images' + '/' + 'uploads' + '/' +'123.jpg'
+
 	def __repr__(self):
 		return '<User {}>'.format(self.username)
 

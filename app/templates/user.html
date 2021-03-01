@@ -3,6 +3,7 @@
 {% block content %}
 	<table>
 		<tr valign="top">
+			<td><img src="{{ url_for('static', filename= './images/uploads/123.jpg',_t=val1) }}" style="width:80px;height: 80px" alt="你的图片被外星人劫持了～～"/></td>
 			<td><h1>User: {{ user.username }}</h1></td>
 		</tr>
 	</table>
@@ -13,3 +14,4 @@
 		</p>
 	{% endfor%}
 {% endblock %}
+

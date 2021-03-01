@@ -6,13 +6,15 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy#从包中导入类
 from flask_migrate import Migrate
 import pymysql 
+from flask_login import LoginManager	#增加登陆
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
 db = SQLAlchemy(app)#数据库对象
 migrate = Migrate(app, db)#迁移引擎对象
 pymysql.install_as_MySQLdb()
+login = LoginManager(app)
+login.login_view = 'login'
 
 #从app包中导入模块routes
 from app import routes, models	#此处在下面是为了避免循环引入

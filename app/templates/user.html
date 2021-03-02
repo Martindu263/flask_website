@@ -1,15 +1,36 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 	<table>
 		<tr valign="top">
-			<td><h1>User: {{ user.username }}</h1></td>
+			<td>
+				<h1>User:{{ user.username }}</h1>
+				{% if user.about_me %}
+					<p>{{ user.about_me }}</p>
+				{% endif %}
+
+				{% if user.last_seen %}
+					<p>Last seen on:{{ user.last_seen }}</p>
+				{% endif %}
+
+				{% if user.last_seen %}
+					<p>Last seen on:{{ user.last_seen }}</p>
+				{% endif %}
+
+				{% if user == current_user %}
+					<p>
+						<a href="{{ url_for('edit_profile') }}">更改你的描述</a>
+					</p>
+				{% endif %}
+
+
+			</td>
 		</tr>
 	</table>
 	<hr>
 	{% for post in posts %}
 		<p>
-			{{ post.author.username }} says:<b>{{ post.body }}</b>
+			{% include '_post.html' %}
 		</p>
 	{% endfor%}
-{% endblock %}
+{% endblock%}

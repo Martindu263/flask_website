@@ -7,11 +7,8 @@ from app import db
 from app.forms import RegistrationForm
 from flask_login import login_required
 from werkzeug.urls import url_parse
-from werkzeug.utils import secure_filename #测试
-import os#测试
-import cv2#测试
-import time#测试
-
+from datetime import datetime
+from app.forms import EditProfileForm
 
 @app.route('/')
 @app.route('/index')
@@ -20,14 +17,6 @@ import time#测试
 def index():
 
 	posts = [
-		{
-			'author': {'username': 'john'},
-			'body': 'Beautiful day in Portland!'
-		},
-		{
-			'author': {'username': 'susan'},
-			'body': 'Beautiful day in USA!'
-		}
 		]
 	return render_template('index.html', title='Home', posts=posts)
 
@@ -77,38 +66,26 @@ def user(username):
 	]
 	return render_template('user.html', user=user, posts=posts)
 
-################测试
+@app.before_request
+def before_request():
+	if current_user.is_authenticated:
+		current_user.last_seen = datetime.utcnow()
+		db.session.commit()
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'JPG', 'PNG', 'bmp'])
+@app.route('/edit_profile',methods=['GET','POST'])
+@login_required
+def edit_profile():
+	form = EditProfileForm()
+	if form.validate_on_submit():
+		current_user.username = form.username.data
+		current_user.about_me = form.about_me.data
+		db.session.commit()
 
-def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
-@app.route('/upload', methods=['POST', 'GET'])  # 添加路由
-def upload():
-	if request.method == 'POST':
-		f = request.files['file']
-
-		if not (f and allowed_file(f.filename)):
-			return jsonify({"error": 1001, "msg": "请检查上传的图片类型，仅限于png、PNG、jpg、JPG、bmp"})
-
-		user_input = request.form.get("name")
-
-		basepath = os.path.dirname(__file__)  # 当前文件所在路径
-
-		upload_path = os.path.join(basepath, 'static/images/uploads', secure_filename(f.filename))  # 注意：没有的文件夹一定要先创建，不然会提示没有该路径
-		# upload_path = os.path.join(basepath, 'static/images','test.jpg')  #注意：没有的文件夹一定要先创建，不然会提示没有该路径
-		f.save(upload_path)
-
-		# 使用Opencv转换一下图片格式和名称
-		img = cv2.imread(upload_path)
-		cv2.imwrite(os.path.join(basepath, 'static/images', 'test.jpg'), img)
-
-		return render_template('upload_ok.html',userinput=user_input,val1=time.time())
-
-	return render_template('upload.html')
-
-
-
+		flash('变更已经成功更改！')
+		return redirect(url_for('edit_profile'))
+	elif request.method == 'GET':
+		form.username.data = current_user.username
+		form.about_me.data = current_user.about_me
+	return render_template('edit_profile.html', title='Edit Profile', form=form)
 
 

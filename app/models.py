@@ -9,6 +9,12 @@ from app import login
 def load_user(id):
 	return User.query.get(int(id))
 
+followers = db.Table(#直接定义数据库表
+	'followers',
+	db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),#关注者列，粉丝id
+	db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))#被关注者列，大Vid
+	)
+
 class User(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(64), index=True, unique=True)
@@ -21,6 +27,31 @@ class User(UserMixin, db.Model):
 	about_me = db.Column(db.String(140))
 	last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
+	followed = db.relationship(
+		'User',
+		secondary=followers,
+		primaryjoin=(followers.c.follower_id==id),#上述id赋值为关系表的follower_id，和粉丝id链接
+		secondaryjoin=(followers.c.followed_id==id),#上述id赋值给要关注的人，和大Vid链接
+		backref=db.backref('followers', lazy='dynamic'),
+		lazy='dynamic'
+		)
+
+	def follow(self, user):
+		if not self.is_following(user):
+			self.followed.append(user)
+
+	def unfollow(self, user):
+		if self.is_following(user):
+			self.followed.remove(user)
+
+	def is_following(self, user):
+		return self.followed.filter(followers.c.followed_id==user.id).count()>0
+
+	def followed_posts(self):
+			followed = Post.query.join(followers, (followers.c.followed_id == Post.user_id)).filter(followers.c.follower_id == self.id)
+			own = Post.query.filter_by(user_id=self.id)
+			return followed.union(own).order_by(Post.timestamp.desc())
+		
 	def __repr__(self):
 		return '<User {}>'.format(self.username)
 

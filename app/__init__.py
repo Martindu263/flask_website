@@ -7,8 +7,7 @@ from flask_sqlalchemy import SQLAlchemy#从包中导入类
 from flask_migrate import Migrate
 import pymysql 
 from flask_login import LoginManager	#增加登陆
-
-################测试
+from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from datetime import timedelta#测试
 
@@ -20,8 +19,7 @@ pymysql.install_as_MySQLdb()
 login = LoginManager(app)
 login.login_view = 'login'
 app.send_file_max_age_default = timedelta(seconds=1) #测试
-
-################测试
+mail = Mail(app)
 bootstrap = Bootstrap(app)
 
 #从app包中导入模块routes

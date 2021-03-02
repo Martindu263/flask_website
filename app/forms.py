@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,BooleanField,SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import User
+
 
 class LoginForm(FlaskForm):
 	username = StringField('用户名', validators=[DataRequired()])
@@ -33,3 +34,8 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(phone_number=phone_number.data).first()
         if user is not None:
             raise ValidationError('电话重复了，请更换电话注册。')
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    about_me = TextAreaField('About_me', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Submit')

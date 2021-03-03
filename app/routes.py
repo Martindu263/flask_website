@@ -1,14 +1,11 @@
 from flask import render_template, flash, redirect, url_for, request, make_response, jsonify #make_response, jsonify测试
 from app import app
-from app.forms import LoginForm, PostForm, ResetPasswordForm
-from flask_login import current_user, login_user, logout_user
+from app.forms import LoginForm, PostForm, ResetPasswordForm, RegistrationForm, EditProfileForm, ResetPasswordRequestForm
+from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Post
 from app import db
-from app.forms import RegistrationForm
-from flask_login import login_required
 from werkzeug.urls import url_parse
 from datetime import datetime
-from app.forms import EditProfileForm, ResetPasswordRequestForm
 from app.email import send_password_reset_email
 
 @app.route('/', methods=['GET', 'POST'])
@@ -21,7 +18,7 @@ def index():
 		post = Post(body=form.post.data, author=current_user)
 		db.session.add(post)
 		db.session.commit()
-		flash('Your post is now live!')
+		flash('成功发送！')
 		return redirect(url_for('index'))
 	posts = current_user.followed_posts().all()
 	page = request.args.get('page', 1, type=int)
@@ -47,7 +44,7 @@ def login():
 	if form.validate_on_submit():
 		user = User.query.filter_by(username=form.username.data).first()
 		if user is None or not user.check_password(form.password.data):
-			flash('Invalid username or password')
+			flash('用户名或密码错误！')
 			return redirect(url_for('login'))
 		login_user(user, remember=form.remember_me.data)
 		next_page = request.args.get('next')
@@ -123,7 +120,7 @@ def before_request():
 @app.route('/edit_profile',methods=['GET','POST'])
 @login_required
 def edit_profile():
-	form = EditProfileForm()
+	form = EditProfileForm(current_user.username)
 	if form.validate_on_submit():
 		current_user.username = form.username.data
 		current_user.about_me = form.about_me.data
@@ -134,21 +131,21 @@ def edit_profile():
 	elif request.method == 'GET':
 		form.username.data = current_user.username
 		form.about_me.data = current_user.about_me
-	return render_template('edit_profile.html', title='Edit Profile', form=form)
+	return render_template('edit_profile.html', title='编辑个人信息', form=form)
 
 @app.route('/follow/<username>')
 @login_required
 def follow(username):
 	user = User.query.filter_by(username=username).first()
 	if user is None:
-		flash('User {} not found.'.format(username))
+		flash('用户 {} 未找到。'.format(username))
 		return redirect(url_for('index'))
 	if user == current_user:
-		flash('You cannot follow yourself!')
+		flash('你不能自己关注自己。')
 		return redirect(url_for('user', username=username))
 	current_user.follow(user)
 	db.session.commit()
-	flash('You are following {}!'.format(username))
+	flash('你正在关注 {}!'.format(username))
 	return redirect(url_for('user', username=username))
 
 @app.route('/unfollow/<username>')
@@ -156,14 +153,14 @@ def follow(username):
 def unfollow(username):
 	user = User.query.filter_by(username=username).first()
 	if user is None:
-		flash('User {} not found.'.format(username))
+		flash('用户 {} 未找到。'.format(username))
 		return redirect(url_for('index'))
 	if user == current_user:
-		flash('You cannot unfollow yourself!')
+		flash('你不能自己关注自己。')
 		return redirect(url_for('user', username=username))
 	current_user.unfollow(user)
 	db.session.commit()
-	flash('You are not following {}.'.format(username))
+	flash('你不再关注  {}.'.format(username))
 	return redirect(url_for('user', username=username))
 
 

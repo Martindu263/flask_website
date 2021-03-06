@@ -14,4 +14,70 @@
 		忘记了你的密码?
 		<a href="{{ url_for('auth.reset_password_request') }}">点击这里重置密码</a>
 	</p>
+<br>
+
+
+
+
+
+
+<div id="container" style="width:100%;height:260px"></div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script type="text/javascript">
+	var dom = document.getElementById("container");
+	var myChart = echarts.init(dom);
+	var app = {};
+	var option;
+
+option = {
+    title: {
+        text: '2020年高考各分段提档学校数量',
+        subtext: '理科、文科第一志愿'
+    },
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+    	show: true,
+    	top:"10%",
+        data: ['理科', '文科']
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            magicType: {show: true, type: ['line', 'bar']}
+        }
+    },
+    calculable: true,
+    xAxis: [
+        {
+            type: 'category',
+            data: ['400-450', '450-500', '500-550', '550-600', '600-650', '650-700', '700+'],
+            axisLabel: {interval:0,rotate:40 }
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+    series: [
+        {
+            name: '理科',
+            type: 'bar',
+            data: {{ result1 }},
+        },
+        {
+            name: '文科',
+            type: 'bar',
+            data: {{ result2 }},
+        }
+    ]
+};
+
+if (option && typeof option === 'object') {
+    myChart.setOption(option);
+}
+
+</script>
 {% endblock %}

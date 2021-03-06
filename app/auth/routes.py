@@ -7,6 +7,9 @@ from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
 from app.models import User, Post
 from app.auth.email import send_password_reset_email
 
+import pymysql
+import pandas as pd
+
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
 	if current_user.is_authenticated:
@@ -22,7 +25,41 @@ def login():
 		if not next_page or url_parse(next_page).netloc != '':
 			next_page = url_for('main.index')
 		return redirect(next_page)
-	return render_template('auth/login.html', title='登陆',form=form)
+	#页面下半部分
+	con = pymysql.connect(host='', port=3306, db='education', user='', passwd='')
+	list_score = [400, 450, 500, 550, 600, 650, 700, 750]
+	a = 0
+	b = 1
+	sql_list1 = []
+	sql_list2 = []
+	while a<= 6:
+		s = list_score[a]
+		t = list_score[b]
+		a = a + 1
+		b = b + 1
+		sql1 = 'select count(*) from like_1op_score_2020 where 总分 between %s and %s' % (s, t)
+		sql_list1.append(sql1)
+		sql2 = 'select count(*) from wenke_1op_score_2020 where 总分 between %s and %s' % (s, t)
+		sql_list2.append(sql2)
+
+	i = 0
+	result1 = []
+	while i <= len(sql_list1)-1:
+		k1 = sql_list1[i]
+		i += 1
+		Kr1 = pd.read_sql(k1, con)
+		Kw1 = Kr1.iat[0, 0]
+		result1.append(Kw1)
+
+	j = 0
+	result2 = []
+	while j <= len(sql_list2)-1:
+		k2 = sql_list2[j]
+		j += 1
+		Kr2 = pd.read_sql(k2, con)
+		Kw2 = Kr2.iat[0, 0]
+		result2.append(Kw2)
+	return render_template('auth/login.html', title='登陆',form=form,result1=result1, result2=result2)
 
 @bp.route('/logout')
 def logout():

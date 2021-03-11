@@ -6,16 +6,16 @@ from app import db#
 from werkzeug.urls import url_parse#
 from datetime import datetime
 from datetime import datetime
-from app.main import bp
+from app.main import _main
 
-@bp.before_app_request
+@_main.before_app_request
 def before_app_request():
 	if current_user.is_authenticated:
 		current_user.last_seen = datetime.utcnow()
 		db.session.commit()
 
-@bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
+@_main.route('/', methods=['GET', 'POST'])
+@_main.route('/index', methods=['GET', 'POST'])
 @login_required			#增加保护视图，不允许未登陆的函数登陆上面的装饰器
 def index():
 	form = PostForm()
@@ -32,7 +32,7 @@ def index():
 	prev_url = url_for('main.index', page=posts.prev_num) if posts.has_prev else None
 	return render_template("index.html", title='Home Page', form=form, posts=posts.items, next_url=next_url, prev_url=prev_url)
 
-@bp.route('/explore')
+@_main.route('/explore')
 @login_required
 def explore():
 	page = request.args.get('page', 1, type=int)
@@ -42,7 +42,7 @@ def explore():
 	return render_template('index.html', title='Explore', posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
-@bp.route('/user/<username>')
+@_main.route('/user/<username>')
 @login_required
 def user(username):
 	user = User.query.filter_by(username=username).first_or_404()
@@ -53,7 +53,7 @@ def user(username):
 	return render_template('user.html', user=user, posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
-@bp.route('/edit_profile',methods=['GET','POST'])
+@_main.route('/edit_profile',methods=['GET','POST'])
 @login_required
 def edit_profile():
 	form = EditProfileForm(current_user.username)
@@ -69,7 +69,7 @@ def edit_profile():
 		form.about_me.data = current_user.about_me
 	return render_template('edit_profile.html', title='编辑个人信息', form=form)
 
-@bp.route('/follow/<username>')
+@_main.route('/follow/<username>')
 @login_required
 def follow(username):
 	user = User.query.filter_by(username=username).first()
@@ -84,7 +84,7 @@ def follow(username):
 	flash('你正在关注 {}!'.format(username))
 	return redirect(url_for('main.user', username=username))
 
-@bp.route('/unfollow/<username>')
+@_main.route('/unfollow/<username>')
 @login_required
 def unfollow(username):
 	user = User.query.filter_by(username=username).first()

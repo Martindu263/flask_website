@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-bp = Blueprint('echarts', __name__)
+_echarts = Blueprint('echarts', __name__)
 
 from app.echarts import routes

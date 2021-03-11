@@ -1,4 +1,4 @@
-from app.echarts import bp
+from app.echarts import _echarts
 from flask import Flask
 from jinja2 import Markup, Environment, FileSystemLoader
 from pyecharts.globals import CurrentConfig
@@ -7,7 +7,7 @@ from random import randrange
 from pyecharts import options as opts
 from pyecharts.charts import Bar
 
-@bp.route("/echarts")
+@_echarts.route("/echarts")
 def echarts():
     c = (
         Bar()
@@ -18,7 +18,7 @@ def echarts():
     )
     return Markup(c.render_embed())
 
-@bp.route('/getdata')
+@_echarts.route('/getdata')
 def get_data():
 	language = ['python', 'java', 'c', 'c++', 'c#', 'php']
 	value = ['100', '150', '100', '90', '80', '90']
